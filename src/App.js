@@ -25,9 +25,7 @@ export const fakeWeatherData = {
   })),
 };
 
-function App() {
-  console.log(process.env.REACT_APP_BASE_URL);
-  
+function App() {  
   const [latitude,setlatitude] = useState()
   const [isloading,setisloading] = useState(false)
   const [longitude, setlongitude] = useState()
