@@ -9,5 +9,5 @@ export const endpoint = {
 };
 
 export default axios.create({
-    baseURL: "http://localhost:8000/"
+    baseURL: BASE_URL
 });
