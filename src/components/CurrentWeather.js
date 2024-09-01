@@ -1,6 +1,6 @@
 import LoadingSpinner from "./LoadingSpinner";
 
-const CurrentWeather = ({ weatherData, darkMode }) => (
+const CurrentWeather = ({ isloading,weatherData, darkMode }) => (
   <>
   {weatherData?<div  className={`flex items-center justify-center bg-white shadow-xl rounded-2xl p-8 w-full max-w-4xl mb-12 ${
       darkMode ? "bg-gray-800 text-black" : ""
@@ -33,7 +33,7 @@ const CurrentWeather = ({ weatherData, darkMode }) => (
         alt={weatherData.current.condition.text}
         className="w-32 h-32 mx-auto"
       />
-  </div>:<LoadingSpinner/>}</>
+  </div>:<>{isloading && <LoadingSpinner/>}</>}</>
 );
 
 export default CurrentWeather;

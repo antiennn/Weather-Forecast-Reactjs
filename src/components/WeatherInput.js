@@ -2,37 +2,37 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import APIs, { endpoint } from "../config/APIs";
 
-const WeatherInput = ({ latitude,longitude,setisloading,setCity, handleUseCurrentLocation, darkMode }) => {
+const WeatherInput = ({
+  latitude,
+  longitude,
+  setrequestperms,
+  setisloading,
+  setCity,
+  handleUseCurrentLocation,
+  darkMode,
+}) => {
   const [hide, sethide] = useState(true);
-  const [error, setError] = useState("");
   const [suggest, setsuggest] = useState([]);
   const [hint, sethint] = useState();
 
   const handleLocation = async () => {
-    if(latitude&&longitude){
-      setisloading(true)
-      setCity()
-    }else{
-      try {
-        await handleUseCurrentLocation();
-      } catch (error) {
-        toast.error(
-          "Failed to access current location. Please ensure location permissions are enabled"
-        );
-      }
+    if (latitude && longitude) {
+      setisloading(true);
+      setCity();
+    } else {
+      setrequestperms(true);
     }
   };
-  useEffect(() => {
+  useEffect(() => {    
     const getAPIsearch = async () => {
       try {
         const res = await APIs.get(endpoint["search"](hint));
         setsuggest(res.data);
-        console.log(res.data);
       } catch (err) {
         toast.error("Failed to access data");
       }
     };
-    if (hint) {
+    if (hint && hint.trim()) {
       getAPIsearch();
     }
   }, [hint]);
@@ -45,9 +45,11 @@ const WeatherInput = ({ latitude,longitude,setisloading,setCity, handleUseCurren
           placeholder="Enter city name"
           value={hint}
           onFocus={() => sethide(false)}
-          onBlur={()=>setTimeout(() => {
-            sethide(true)
-        }, 500)}
+          onBlur={() =>
+            setTimeout(() => {
+              sethide(true);
+            }, 500)
+          }
           onChange={(e) => sethint(e.target.value)}
           className={`w-full px-4 py-2 rounded-lg ${
             darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
@@ -55,19 +57,26 @@ const WeatherInput = ({ latitude,longitude,setisloading,setCity, handleUseCurren
           maxLength={40}
         />
       </div>
-      {!hide && (
-        <div className={`absolute w-full p-2 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"} cursor-pointer`}>
+      {!hide && suggest.length != 0 && (
+        <div
+          className={`absolute w-full p-2 z-10 ${
+            darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+          } cursor-pointer`}
+        >
           {suggest.length != 0 &&
             suggest.map((e, idx) => {
               return (
                 <div
                   key={idx}
                   onClick={() => {
-                    setisloading(true)
+                    setisloading(true);
                     sethide(true);
                     setCity(e.name);
+                    sethint(e.name);
                   }}
-                  className="my-1 flex gap-2 justify-start"
+                  className={`my-1 p-2 rounded-md flex gap-2 justify-start ${
+                    !darkMode ? "hover:bg-slate-400" : "hover:bg-gray-500"
+                  }`}
                 >
                   {e.name && (
                     <p>
@@ -92,7 +101,6 @@ const WeatherInput = ({ latitude,longitude,setisloading,setCity, handleUseCurren
             })}
         </div>
       )}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
       <button
         onClick={handleLocation}
         className={`w-full text-white px-6 py-3 font-semibold rounded-lg ${

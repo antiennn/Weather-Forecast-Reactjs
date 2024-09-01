@@ -25,8 +25,9 @@ export const fakeWeatherData = {
   })),
 };
 
-function App() {  
+function App() {   
   const [latitude,setlatitude] = useState()
+  const [requestperms,setrequestperms] = useState(true)
   const [isloading,setisloading] = useState(false)
   const [longitude, setlongitude] = useState()
   const [forecast, setForecast] = useState()
@@ -102,19 +103,26 @@ function App() {
 
   useEffect(() => {
     // Request geolocation access when the component mounts.
-    handleUseCurrentLocation()
+    if(requestperms){
+      setisloading(true)
+      handleUseCurrentLocation()
       .then((position) => {
         const { latitude, longitude } = position.coords;
         setlatitude(latitude)
         setlongitude(longitude)
+        setCity()
         setVisibleDays(3)
         toast.success("Weather data updated based on your location.");
       })
       .catch((error) => {
+        setVisibleDays(3)
+        setisloading(false)
         toast.error(error);
+        setrequestperms(false)
       });
-  }, []);
-  useEffect(()=>{
+    }
+  }, [requestperms]);
+  useEffect(()=>{    
     if(visibleDays){
       if(isloading){
         setForecast()
@@ -123,10 +131,12 @@ function App() {
       if(city){
         fetchCityWeatherData(city)
       }else{
-        fetchWeatherData(latitude, longitude);
+        if(latitude && longitude){
+          fetchWeatherData(latitude, longitude);
+        }
       }
     }
-  }, [visibleDays,city,lang])
+  }, [visibleDays,city,lang,latitude,longitude])
 
 
   return (
@@ -137,6 +147,7 @@ function App() {
     >
       <Toaster />
       <Header
+        setisloading={setisloading}
         setLang = {setLang}
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
@@ -144,12 +155,14 @@ function App() {
       <WeatherInput
         latitude = {latitude}
         longitude = {longitude}
+        setrequestperms = {setrequestperms}
         setisloading = {setisloading}
         setCity={setCity}
         handleUseCurrentLocation={handleUseCurrentLocation}
         darkMode={darkMode}
       />
       <CurrentWeather
+        isloading = {isloading}
         weatherData={forecast}
         darkMode={darkMode}
       />
