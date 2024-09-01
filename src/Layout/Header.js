@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { FaMoon, FaSun } from "react-icons/fa";
 
-const Header = ({ setLang, darkMode, toggleDarkMode }) => {
+const Header = ({ setisloading,setLang, darkMode, toggleDarkMode }) => {
+  const [selectedValue, setselectedValue] = useState("en")
   return (
     <header className="w-full max-w-5xl flex justify-between items-center py-4 px-6 bg-opacity-80 rounded-lg shadow-md mb-8">
       <h1 className="text-4xl font-bold">Weather Dashboard</h1>
@@ -20,8 +22,11 @@ const Header = ({ setLang, darkMode, toggleDarkMode }) => {
           )}
         </button>
         <select
-          className="outline-none border-none bg-white"
+          value={selectedValue}
+          className={`outline-none border-none ${darkMode?"bg-gray-900":"bg-gray-100"}`}
           onChange={(e) => {
+            setselectedValue(e.target.value)
+            setisloading(true)
             setLang(e.target.value);
           }}
         >
