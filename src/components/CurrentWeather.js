@@ -33,7 +33,9 @@ const CurrentWeather = ({ isloading,weatherData, darkMode }) => (
         alt={weatherData.current.condition.text}
         className="w-32 h-32 mx-auto"
       />
-  </div>:<>{isloading && <LoadingSpinner/>}</>}</>
+  </div>
+  
+  :<>{isloading && <LoadingSpinner/>}</>}</>
 );
 
 export default CurrentWeather;
