@@ -7,6 +7,7 @@ import Header from "./Layout/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { getToday } from "./helper/getDate";
 import APIs, { endpoint } from "./config/APIs";
+import Subscribe from "./components/Subscribe";
 
 function App() {
   const [latitude, setlatitude] = useState();
@@ -86,10 +87,10 @@ function App() {
 
   const loadMoreDays = () => {
     setVisibleDays((prev) => Math.min(prev + 2, 11));
+    setisloading(false);
   };
 
   useEffect(() => {
-
     if (
       localstorage &&
       localStorage.getItem("time") &&
@@ -162,6 +163,7 @@ function App() {
         weatherData={forecast}
         darkMode={darkMode}
       />
+      <Subscribe darkMode={darkMode} forecast={forecast} />
       <Forecast
         weatherData={forecast}
         visibleDays={visibleDays}
