@@ -8,19 +8,19 @@ const WeatherInput = ({
   setrequestperms,
   setisloading,
   setCity,
-  handleUseCurrentLocation,
+  setVisibleDays,
   darkMode,
 }) => {
   const [hide, sethide] = useState(true);
   const [suggest, setsuggest] = useState([]);
   const [hint, sethint] = useState();
 
-  const handleLocation = async () => {
+  const handleLocation = () => {
     if (latitude && longitude) {
       setisloading(true);
       setCity();
     } else {
-      setrequestperms(true);
+      setrequestperms(true);      
     }
   };
   useEffect(() => {    
@@ -71,6 +71,7 @@ const WeatherInput = ({
                   onClick={() => {
                     setisloading(true);
                     sethide(true);
+                    setVisibleDays(3);
                     setCity(e.name);
                     sethint(e.name);
                   }}
