@@ -5,33 +5,17 @@ import CurrentWeather from "./components/CurrentWeather";
 import Forecast from "./components/Forecast";
 import Header from "./Layout/Header";
 import toast, { Toaster } from "react-hot-toast";
-import { getNextDays } from "./helper/getDate";
+import { getToday } from "./helper/getDate";
 import APIs, { endpoint } from "./config/APIs";
 
-export const fakeWeatherData = {
-  current: {
-    city: "Ho Chi Minh City",
-    temperature: 30,
-    windSpeed: 5,
-    humidity: 60,
-    description: "Sunny",
-  },
-  forecast: getNextDays(7).map((day, index) => ({
-    day,
-    temperature: 30 - index,
-    windSpeed: 5 + index,
-    humidity: 60 + index,
-    description: index % 2 === 0 ? "Sunny" : "Cloudy",
-  })),
-};
-
-function App() {   
-  const [latitude,setlatitude] = useState()
-  const [requestperms,setrequestperms] = useState(true)
-  const [isloading,setisloading] = useState(false)
-  const [longitude, setlongitude] = useState()
-  const [forecast, setForecast] = useState()
-  const [lang,setLang] = useState("en")
+function App() {
+  const [latitude, setlatitude] = useState();
+  const [requestperms, setrequestperms] = useState(true);
+  const [localstorage, setlocalstorage] = useState(true);
+  const [isloading, setisloading] = useState(true);
+  const [longitude, setlongitude] = useState();
+  const [forecast, setForecast] = useState();
+  const [lang, setLang] = useState("en");
   const [visibleDays, setVisibleDays] = useState();
   const [city, setCity] = useState();
   const [darkMode, setDarkMode] = useState(
@@ -39,25 +23,28 @@ function App() {
   );
 
   const fetchWeatherData = async (lat, lon) => {
-    try{
-      const res = await APIs.get(endpoint.forecast(`${lat},${lon}`,visibleDays,lang))
-      setForecast(res.data)
-      
-    }catch(err){
+    try {
+      const res = await APIs.get(
+        endpoint.forecast(`${lat},${lon}`, visibleDays, lang)
+      );
+      setForecast(res.data);
+      localStorage.setItem("data", JSON.stringify(res.data));
+      localStorage.setItem("time", JSON.stringify(getToday()));
+    } catch (err) {
       console.log(err);
     }
   };
 
   const fetchCityWeatherData = async (query) => {
-    try{
-      const res = await APIs.get(endpoint.forecast(query,visibleDays,lang))
-      setForecast(res.data)      
-      
-    }catch(err){
+    try {
+      const res = await APIs.get(endpoint.forecast(query, visibleDays, lang));
+      setForecast(res.data);
+      localStorage.setItem("data", JSON.stringify(res.data));
+      localStorage.setItem("time", JSON.stringify(getToday()));
+    } catch (err) {
       console.log(err);
     }
   };
-
 
   // Handle fetching weather data based on the user's current location.
   const handleUseCurrentLocation = () => {
@@ -97,47 +84,56 @@ function App() {
     setDarkMode(!darkMode);
   };
 
-  const loadMoreDays = () => {    
+  const loadMoreDays = () => {
     setVisibleDays((prev) => Math.min(prev + 2, 11));
   };
 
   useEffect(() => {
-    // Request geolocation access when the component mounts.
-    if(requestperms){
-      setisloading(true)
-      handleUseCurrentLocation()
-      .then((position) => {
-        const { latitude, longitude } = position.coords;
-        setlatitude(latitude)
-        setlongitude(longitude)
-        setCity()
-        setVisibleDays(3)
-        toast.success("Weather data updated based on your location.");
-      })
-      .catch((error) => {
-        setVisibleDays(3)
-        setisloading(false)
-        toast.error(error);
-        setrequestperms(false)
-      });
+
+    if (
+      localstorage &&
+      localStorage.getItem("time") &&
+      JSON.parse(localStorage.getItem("time")) == getToday()
+    ) {
+      setForecast(JSON.parse(localStorage.getItem("data")));
+      setlocalstorage(false);
+      setrequestperms(false);
+    } else {
+      // Request geolocation access when the component mounts.
+      if (requestperms) {
+        setisloading(true);
+        handleUseCurrentLocation()
+          .then((position) => {
+            const { latitude, longitude } = position.coords;
+            setlatitude(latitude);
+            setlongitude(longitude);
+            setCity();
+            setVisibleDays(3);
+            toast.success("Weather data updated based on your location.");
+          })
+          .catch((error) => {
+            setVisibleDays(3);
+            setisloading(false);
+            toast.error(error);
+            setrequestperms(false);
+          });
+      }
     }
   }, [requestperms]);
-  useEffect(()=>{    
-    if(visibleDays){
-      if(isloading){
-        setForecast()
-        setisloading(false)
+  useEffect(() => {
+    if (visibleDays) {
+      if (isloading) {
+        setForecast();
       }
-      if(city){
-        fetchCityWeatherData(city)
-      }else{
-        if(latitude && longitude){
+      if (city) {
+        fetchCityWeatherData(city);
+      } else {
+        if (latitude && longitude) {
           fetchWeatherData(latitude, longitude);
         }
       }
     }
-  }, [visibleDays,city,lang,latitude,longitude])
-
+  }, [visibleDays, city, lang, latitude, longitude]);
 
   return (
     <div
@@ -148,21 +144,21 @@ function App() {
       <Toaster />
       <Header
         setisloading={setisloading}
-        setLang = {setLang}
+        setLang={setLang}
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
       />
       <WeatherInput
-        latitude = {latitude}
-        longitude = {longitude}
-        setrequestperms = {setrequestperms}
-        setisloading = {setisloading}
+        latitude={latitude}
+        longitude={longitude}
+        setrequestperms={setrequestperms}
+        setisloading={setisloading}
         setCity={setCity}
-        handleUseCurrentLocation={handleUseCurrentLocation}
+        setVisibleDays={setVisibleDays}
         darkMode={darkMode}
       />
       <CurrentWeather
-        isloading = {isloading}
+        isloading={isloading}
         weatherData={forecast}
         darkMode={darkMode}
       />
