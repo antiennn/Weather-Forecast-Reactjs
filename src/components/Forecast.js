@@ -9,7 +9,7 @@ const Forecast = ({ weatherData, visibleDays, loadMoreDays, darkMode }) => {
   });
 
   const handleLoadMore = () => {
-    if (inView && weatherData.forecast.forecastday.length == visibleDays) {
+    if (inView && weatherData && weatherData.forecast.forecastday.length == visibleDays) {
       loadMoreDays();
     }
   };
