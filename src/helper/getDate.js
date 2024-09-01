@@ -1,17 +1,11 @@
-export const getNextDays = (numDays) => {
+export const getToday = () => {
+
   const today = new Date();
-  const daysArray = [];
+  const day = today.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
-  for (let i = 0; i < numDays; i++) {
-    const nextDay = new Date();
-    nextDay.setDate(today.getDate() + i);
-    const day = nextDay.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-    daysArray.push(day);
-  }
-
-  return daysArray;
+  return day;
 };
